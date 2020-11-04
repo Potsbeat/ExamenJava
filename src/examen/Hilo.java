@@ -1,11 +1,13 @@
 package examen;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -14,96 +16,98 @@ import javax.swing.JTextField;
  * @author Potsbeat
  */
 public class Hilo extends Thread {
-
+    JPanel top_panel;
     JFrame ventana;
     private int id_hilo;
     private File folder;
     private JLabel lab = new JLabel("Nombre del archivo con extensión:");
-    private JTextField arch_field = new JTextField();
+    private JTextField arch_field = new JTextField(18);
     private JButton buscar_btn = new JButton("buscar");
-    private JTextArea log_field = new JTextArea();
+    private JTextArea log_field = new JTextArea(5,10);
     private String root_path = "hilos_dir";
-    private int sig_tiene = 2; //2 = no se sabe  1 = lo tiene  0 = no lo tiene
+    
 
-    public int askNext(String name) {
+    public Hilo getNext() {
 
-        sig_tiene = Main.hilos.get((id_hilo + 1) % Main.hilos.size()).buscar(name, id_hilo);
-
-        if (sig_tiene == 0) {
-            return 0;
-        } else{
-            log_field.append("El siguiente hilo tiene el archivo " + name + ".\n");
-            return 1;
-        }
+        return Main.hilos.get((id_hilo + 1) % Main.hilos.size());
 
     }
+    
+    public Hilo getPrev() {
+        if(id_hilo==0){
+            return Main.hilos.get(Main.hilos.size()-1);
+        }else{
+            return Main.hilos.get((id_hilo - 1));
+        }
+    }
+    
+    public void addLog(String txt){
+        log_field.append(txt+"\n");
+    }
 
-    public int buscar(String name) {
+    public void buscar(String name) {
         File file = new File(root_path + "/hilo" + id_hilo + "/" + name);
 
-        if (sig_tiene == 0) {
-            log_field.append("No se ha encontrado el archivo en niguna carpeta\n");
-            return 2;
+        log_field.append("Buscando " + name + " en la carpeta del hilo " + id_hilo + "...\n");
+
+        if (file.exists()) {
+
         } else {
 
-            log_field.append("Buscando " + name + " en la carpeta del hilo " + id_hilo + "...\n");
-
-            if (file.exists()) {
-                log_field.append("Se ha encontrado el archivo en esta carpeta.\n");
-                return 1;
-            } else {
-                log_field.append("No se ha encontrado el archivo en esta carpeta.\n");
-                log_field.append("Preguntando al siguiente hilo...\n");
-                sig_tiene = askNext(name);
-                return 0;
-            }
         }
+
     }
 
-    public int buscar(String name, int id) {
-        if (sig_tiene == 0) {
+    public void buscar(String name, int id) {
+      
             log_field.append("No se ha encontrado el archivo en niguna carpeta\n");
-            return 2;
-        } else {
+            
+        
             log_field.append("El hilo " + id + " pregunta por el archivo " + name + ".\n");
-            return buscar(name);
-        }
+            
+        
     }
 
     public Hilo(int id) {
         id_hilo = id;
         folder = new File(root_path + "/hilo" + id_hilo);
-
+        
+        
+        top_panel = new JPanel();
         ventana = new JFrame();
-        ventana.setSize(300, 250);
+        
+        top_panel.setLayout(new BorderLayout(5,5));
+        ventana.setSize(320, 350);
         ventana.setTitle("Hilo " + id_hilo);
-        ventana.setLayout(null);
-
-        lab.setBounds(10, 2, 200, 20);
-        arch_field.setBounds(5, 23, 150, 20);
-        buscar_btn.setBounds(156, 23, 75, 20);
-        log_field.setBounds(7, 54, 270, 150);
+        ventana.setLayout(new BorderLayout(10,10));
+        
+        //lab.setBounds(10, 2, 200, 20);
+        //arch_field.setBounds(5, 23, 150, 20);
+        //buscar_btn.setBounds(156, 23, 75, 20);
+        //log_field.setBounds(7, 54, 270, 150);
         log_field.setEditable(false);
         log_field.setLineWrap(true);
-
+       
         buscar_btn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                buscar(arch_field.getText());
+                //buscar(arch_field.getText());
+                
             }
         });
-
-        ventana.add(lab);
-        ventana.add(arch_field);
-        ventana.add(buscar_btn);
-        ventana.add(log_field);
-        ventana.setLayout(null);
+        
+        
+        top_panel.add(lab, BorderLayout.NORTH);
+        top_panel.add(arch_field, BorderLayout.WEST);
+        top_panel.add(buscar_btn, BorderLayout.CENTER);
+        ventana.add(top_panel, BorderLayout.NORTH);
+        ventana.add(log_field, BorderLayout.CENTER);
+       
     }
 
     @Override
     public void run() {
         folder.mkdirs();
         ventana.setVisible(true);
-
     }
 
 }
