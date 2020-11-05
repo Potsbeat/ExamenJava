@@ -25,8 +25,9 @@ public class Hilo extends Thread {
     private JButton buscar_btn = new JButton("buscar");
     private JTextArea log_field = new JTextArea(5,10);
     private String root_path = "hilos_dir";
+    private JLabel sig = new JLabel("");
+    private JLabel prev = new JLabel("");
     
-
     public boolean hasFile(String name){
         File file = new File(root_path + "/hilo" + id_hilo + "/" + name);
         if (file.exists()) {
@@ -169,13 +170,16 @@ public class Hilo extends Thread {
         top_panel.add(buscar_btn, BorderLayout.CENTER);
         ventana.add(top_panel, BorderLayout.NORTH);
         ventana.add(log_field, BorderLayout.CENTER);
-       
+        ventana.add(sig, BorderLayout.EAST);
+        ventana.add(prev, BorderLayout.WEST);
     }
 
     @Override
     public void run() {
         folder.mkdirs();
         ventana.setVisible(true);
+        sig.setText("Siguiente: "+getNextId());
+        prev.setText("Anterior: "+getPrevId());
     }
 
 }
