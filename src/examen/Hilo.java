@@ -118,7 +118,8 @@ public class Hilo extends Thread {
             }
             
             if(found){
-                msg = "El hilo "+j+" tiene el archivo.";
+                msg = "El hilo "+j+" tiene el archivo.\nRuta: "+System.getProperty("user.dir")+"\\"+root_path+"\\hilo"+
+                                        Main.hilos.get(j).getIdHilo()+"\\";
                
             }else{
                 msg = "Ningún hilo tiene el archivo :(";
