@@ -27,10 +27,35 @@ public class Hilo extends Thread {
     private String root_path = "hilos_dir";
     
 
+    public boolean hasFile(String name){
+        File file = new File(root_path + "/hilo" + id_hilo + "/" + name);
+        if (file.exists()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    public int getIdHilo(){
+        return id_hilo;
+    }
+    
     public Hilo getNext() {
 
         return Main.hilos.get((id_hilo + 1) % Main.hilos.size());
 
+    }
+    
+    public int getNextId(){
+        return Main.hilos.get((id_hilo + 1) % Main.hilos.size()).getIdHilo();
+    }
+    
+    public int getPrevId(){
+        if(id_hilo==0){
+            return Main.hilos.get(Main.hilos.size()-1).getIdHilo();
+        }else{
+            return Main.hilos.get((id_hilo - 1)).getIdHilo();
+        }
     }
     
     public Hilo getPrev() {
@@ -44,28 +69,71 @@ public class Hilo extends Thread {
     public void addLog(String txt){
         log_field.append(txt+"\n");
     }
-
-    public void buscar(String name) {
-        File file = new File(root_path + "/hilo" + id_hilo + "/" + name);
-
-        log_field.append("Buscando " + name + " en la carpeta del hilo " + id_hilo + "...\n");
-
-        if (file.exists()) {
-
-        } else {
-
-        }
-
+    
+    public void joinLog(String txt){
+        log_field.append(txt);
     }
 
-    public void buscar(String name, int id) {
-      
-            log_field.append("No se ha encontrado el archivo en niguna carpeta\n");
-            
+    public void setLog(String txt){
+        log_field.setText(txt);
+    }
+    
+    
+    public void buscar(String name) {
+
+        addLog("Buscando " + name + " en la carpeta del hilo " + id_hilo + "...");  
         
-            log_field.append("El hilo " + id + " pregunta por el archivo " + name + ".\n");
+        if(hasFile(name)){
+            addLog("¡Se ha encontrado el archivo "+name+" en este hilo!");       
+        }else{
+            int j=0;
+            int k;
+            String msg = "";
+            boolean found = false;
             
-        
+            addLog("No se ha encontrado. Preguntando al hilo siguiente ("+getNextId()+")..."); 
+            for(int i=getIdHilo()+1;i<Main.hilos.size()+getIdHilo();i++){
+                j = i%(Main.hilos.size());
+                
+                Main.hilos.get(j).addLog("El hilo "+Main.hilos.get(j).getPrevId()+
+                                            " pregunta por el archivo "+
+                                            name+".\nBuscando en esta carpeta ("+
+                                            j+")..."); 
+                
+                if(Main.hilos.get(j).hasFile(name)){
+                    found = true;
+                    Main.hilos.get(j).addLog("Se ha encontrado el archivo en esta carpeta ("+Main.hilos.get(j).getIdHilo()+")."); 
+                    break;
+                }else{
+                    Main.hilos.get(j).joinLog("No se ha encontrado.");
+                    found = false;
+                    if(j==getPrevId()){
+                        Main.hilos.get(j).addLog(" Ningún hilo tiene el archivo.");
+                        
+                    }else{
+                        Main.hilos.get(j).addLog(" Preguntando al hilo siguiente ("+Main.hilos.get(j).getNextId()+")...");
+                    }
+                }
+                
+            }
+            
+            if(found){
+                msg = "El hilo "+j+" tiene el archivo.";
+               
+            }else{
+                msg = "Ningún hilo tiene el archivo :(";
+            }
+            
+            k = j;
+            
+            while(k!=getIdHilo()){
+                k = Main.hilos.get(k).getPrevId();
+                Main.hilos.get(k).addLog("Respuesta del hilo "+Main.hilos.get(k).getNextId()+
+                                         ": "+msg); 
+            }
+        }
+        addLog("Ha finalizado la búsqueda.");
+
     }
 
     public Hilo(int id) {
@@ -77,8 +145,8 @@ public class Hilo extends Thread {
         ventana = new JFrame();
         
         top_panel.setLayout(new BorderLayout(5,5));
-        ventana.setSize(320, 350);
-        ventana.setTitle("Hilo " + id_hilo);
+        ventana.setSize(350, 350);
+        ventana.setTitle("Hilo " + id_hilo );
         ventana.setLayout(new BorderLayout(10,10));
         
         //lab.setBounds(10, 2, 200, 20);
@@ -90,11 +158,10 @@ public class Hilo extends Thread {
        
         buscar_btn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //buscar(arch_field.getText());
+                buscar(arch_field.getText());
                 
             }
         });
-        
         
         top_panel.add(lab, BorderLayout.NORTH);
         top_panel.add(arch_field, BorderLayout.WEST);

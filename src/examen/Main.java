@@ -26,7 +26,8 @@ public class Main {
         
         JFrame f = new JFrame();//creating instance of JFrame  
         JComboBox cb = new JComboBox(nums);
-        JButton b = new JButton("Crear");//creating instance of JButton  
+        JButton b = new JButton("Crear");
+        JButton b_clean = new JButton("Limpiar");
         JLabel lab = new JLabel("Hilos");
         
        
@@ -45,12 +46,27 @@ public class Main {
                 
                 b.setEnabled(false);
                 cb.setEnabled(false);
+                b_clean.setEnabled(true);
+                
+            }
+        });
+        
+        b_clean.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                
+                for(Hilo h : hilos){
+                    h.setLog("");
+                }
+                
             }
         });
         
         f.add(lab);
         f.add(cb);
-        f.add(b);//adding button in JFrame  
+        f.add(b);
+        f.add(b_clean);
+        
+        b_clean.setEnabled(false);
 
         f.setSize(250, 250);//400 width and 500 height  
         f.setLayout(new FlowLayout(FlowLayout.LEFT));
